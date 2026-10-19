@@ -1,6 +1,5 @@
 namespace MesaPartesDigital;
 
-/// <summary>Representa los datos principales de un expediente.</summary>
 public sealed class Expediente
 {
     public string Codigo { get; set; }
@@ -10,7 +9,8 @@ public sealed class Expediente
     public string Asunto { get; set; }
     public DateTime Fecha { get; set; }
 
-    public Expediente(string codigo, string solicitante, string dni, string tipoDocumento, string asunto, DateTime fecha)
+    public Expediente(string codigo, string solicitante, string dni,
+        string tipoDocumento, string asunto, DateTime fecha)
     {
         Codigo = codigo;
         Solicitante = solicitante;
