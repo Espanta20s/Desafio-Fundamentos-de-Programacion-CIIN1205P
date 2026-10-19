@@ -14,6 +14,7 @@ public sealed class MainForm : Form
     private readonly DateTimePicker _fecha = new();
     private readonly DataGridView _tabla = new();
     private readonly Label _lblCodigo = new();
+    private readonly TextBox _txtBuscar = new();
 
     public MainForm()
     {
@@ -35,7 +36,15 @@ public sealed class MainForm : Form
         datos.Controls.Add(new Label { Text = "Fecha:", AutoSize = true, Padding = new Padding(0, 8, 0, 0) }); datos.Controls.Add(_fecha);
         panel.Controls.Add(datos, 0, 0);
         var botones = new FlowLayoutPanel { Dock = DockStyle.Fill }; var registrar = new Button { Text = "Registrar", Width = 110 };
-        registrar.Click += (_, _) => RegistrarExpediente(); botones.Controls.Add(registrar); panel.Controls.Add(botones, 0, 1);
+        registrar.Click += (_, _) => RegistrarExpediente(); botones.Controls.Add(registrar);
+        var ordenar = new Button { Text = "Ordenar por código", Width = 140 };
+        ordenar.Click += (_, _) => OrdenarExpedientes(); botones.Controls.Add(ordenar);
+        var mostrar = new Button { Text = "Mostrar todos", Width = 110 };
+        mostrar.Click += (_, _) => ActualizarTabla(); botones.Controls.Add(mostrar);
+        _txtBuscar.Width = 130; botones.Controls.Add(_txtBuscar);
+        var buscar = new Button { Text = "Buscar", Width = 90 };
+        buscar.Click += (_, _) => BuscarExpediente(); botones.Controls.Add(buscar);
+        panel.Controls.Add(botones, 0, 1);
         _tabla.Dock = DockStyle.Fill; _tabla.ReadOnly = true; _tabla.AllowUserToAddRows = false; _tabla.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         foreach (var columna in new[] { ("Codigo", "Código"), ("Solicitante", "Solicitante"), ("DNI", "DNI"), ("Tipo", "Tipo"), ("Asunto", "Asunto"), ("Fecha", "Fecha") }) _tabla.Columns.Add(columna.Item1, columna.Item2);
         panel.Controls.Add(_tabla, 0, 2);
@@ -70,6 +79,29 @@ public sealed class MainForm : Form
     {
         if (_cantidad == _expedientes.Length) Array.Resize(ref _expedientes, _expedientes.Length * 2);
     }
+    private void BuscarExpediente()
+    {
+        string codigo = _txtBuscar.Text.Trim();
+        if (codigo.Length == 0) { MessageBox.Show("Ingresa el código que deseas buscar."); return; }
+        for (int i = 0; i < _cantidad; i++)
+        {
+            if (string.Equals(_expedientes[i].Codigo, codigo, StringComparison.OrdinalIgnoreCase))
+            {
+                _tabla.ClearSelection();
+                _tabla.Rows[i].Selected = true;
+                _tabla.FirstDisplayedScrollingRowIndex = i;
+                return;
+            }
+        }
+        MessageBox.Show("El expediente no existe.", "Búsqueda", MessageBoxButtons.OK, MessageBoxIcon.Information);
+    }
+
+    private void OrdenarExpedientes()
+    {
+        Array.Sort(_expedientes, 0, _cantidad, Comparer<Expediente>.Create((a, b) => string.Compare(a.Codigo, b.Codigo, StringComparison.OrdinalIgnoreCase)));
+        ActualizarTabla();
+    }
+
     private void ActualizarTabla()
     {
         _tabla.Rows.Clear();
